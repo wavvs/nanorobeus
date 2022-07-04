@@ -1,0 +1,24 @@
+{
+    "register_obj": {
+        "nanorobeus64": {
+            "arch": "x64",
+            "artifact": "WINAPI",
+            "description": "Badger Object File for managing Kerberos tickets",
+            "example": "nanorobeus64 help",
+            "file_path": "server_confs/bofs/nanorobeus_brc4.x64.o",
+            "mainArgs": "NA",
+            "minimumArgCount": 1,
+            "optionalArg": "NA"
+        },
+        "nanorobeus86": {
+            "arch": "x86",
+            "artifact": "WINAPI",
+            "description": "Badger Object File for managing Kerberos tickets",
+            "example": "nanorobeus86 help",
+            "file_path": "server_confs/bofs/nanorobeus_brc4.x86.o",
+            "mainArgs": "NA",
+            "minimumArgCount": 1,
+            "optionalArg": "NA"
+        }
+    }
+}
