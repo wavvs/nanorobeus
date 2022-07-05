@@ -37,6 +37,7 @@ void execute_ptt(WCHAR** dispatch, HANDLE hToken, char* ticket, LUID luid, BOOL 
     submitRequest = (KERB_SUBMIT_TKT_REQUEST*)MSVCRT$calloc(submitSize, sizeof(KERB_SUBMIT_TKT_REQUEST));
     if (submitRequest == NULL) {
         PRINT(dispatch, "[!] KERB_SUBMIT_TKT_REQUEST - could not allocate memory.\n");
+        MSVCRT$free(decoded);
         SECUR32$LsaDeregisterLogonProcess(hLsa);
         return;
     }
