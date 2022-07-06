@@ -118,7 +118,7 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                (MSVCRT$strcmp(command, "dump") == 0)) {
         if (MSVCRT$strcmp(arg1, "") != 0) {
             if (MSVCRT$strcmp(arg1, "/luid") == 0) {
-                if (arg2 != NULL) {
+                if (MSVCRT$strcmp(arg2, "") != 0) {
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
