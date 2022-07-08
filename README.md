@@ -4,6 +4,7 @@ COFF file (BOF) for managing Kerberos tickets.
 ## Supported agents
 * [Sliver](https://github.com/BishopFox/sliver)
 * [Brute Ratel](https://bruteratel.com)
+* Any other agent supporting Cobalt Strike BOFs (not tested)
 
 ## Commands
 

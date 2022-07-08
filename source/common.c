@@ -139,18 +139,12 @@ NTSTATUS GetLsaHandle(HANDLE hToken, BOOL highIntegrity, HANDLE* hLsa) {
                     status = ADVAPI32$LsaNtStatusToWinError(status);
                 }
             } else {
-                hToken = GetCurrentToken(TOKEN_ADJUST_PRIVILEGES);
-                if (hToken != NULL) {
-                    if (ElevateToSystem()) {
-                        status = SECUR32$LsaRegisterLogonProcess(&lsaString, &hLsaLocal, &mode);
-                        if (!NT_SUCCESS(status)) {
-                            status = ADVAPI32$LsaNtStatusToWinError(status);
-                        }
-                        ADVAPI32$RevertToSelf();
-                    } else {
-                        status = KERNEL32$GetLastError();
+                if (ElevateToSystem()) {
+                    status = SECUR32$LsaRegisterLogonProcess(&lsaString, &hLsaLocal, &mode);
+                    if (!NT_SUCCESS(status)) {
+                        status = ADVAPI32$LsaNtStatusToWinError(status);
                     }
-                    KERNEL32$CloseHandle(hToken);
+                    ADVAPI32$RevertToSelf();
                 } else {
                     status = KERNEL32$GetLastError();
                 }
