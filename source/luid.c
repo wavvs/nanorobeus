@@ -6,8 +6,8 @@ void execute_luid(WCHAR** dispatch, HANDLE hToken) {
         PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
         return;
     }
-
     PRINT(dispatch, "[+] Current LogonId: %lx:0x%lx\n\n", currentLUID->HighPart, currentLUID->LowPart);
+    MSVCRT$free(currentLUID);
 }
 
 LUID* GetCurrentLUID(HANDLE TokenHandle) {

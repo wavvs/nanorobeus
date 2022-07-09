@@ -122,26 +122,28 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
-                        return;
+                        goto end;
                     }
                 } else {
                     PRINT(dispatch, "[!] Specify /luid argument\n");
-                    return;
+                    goto end;
                 }
             } else if (MSVCRT$strcmp(arg1, "/all") == 0) {
                 luid = (LUID){.HighPart = 0, .LowPart = 0};
             } else {
                 PRINT(dispatch, "[!] Unknown command\n");
-                return;
+                goto end;
             }
         } else {
             LUID* cLuid = GetCurrentLUID(hToken);
             if (cLuid == NULL) {
                 PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                return;
+                goto end;
             }
-            luid = *cLuid;
+            luid.HighPart = cLuid->HighPart;
+            luid.LowPart = cLuid->LowPart;
             currentLuid = TRUE;
+            MSVCRT$free(cLuid);
         }
 
         if (MSVCRT$strcmp(command, "sessions") == 0) {
@@ -161,7 +163,7 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                         luid.LowPart = MSVCRT$strtol(arg3, NULL, 16);
                         if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                             PRINT(dispatch, "[!] Specify valid /luid\n");
-                            return;
+                            goto end;
                         }
                     }
                 }
@@ -169,15 +171,17 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                 LUID* cLuid = GetCurrentLUID(hToken);
                 if (cLuid == NULL) {
                     PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                    return;
+                    goto end;
                 }
-                luid = *cLuid;
+                luid.HighPart = cLuid->HighPart;
+                luid.LowPart = cLuid->LowPart;
                 currentLuid = TRUE;
+                MSVCRT$free(cLuid);
             }
             execute_ptt(dispatch, hToken, ticket, luid, currentLuid);
         } else {
             PRINT(dispatch, "[!] Specify Base64 encoded ticket\n");
-            return;
+            goto end;
         }
     } else if (MSVCRT$strcmp(command, "purge") == 0) {
         if (MSVCRT$strcmp(arg1, "") != 0) {
@@ -186,24 +190,26 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
-                        return;
+                        goto end;
                     }
                 } else {
                     PRINT(dispatch, "[!] Specify /luid argument\n");
-                    return;
+                    goto end;
                 }
             } else {
                 PRINT(dispatch, "[!] Unknown command\n");
-                return;
+                goto end;
             }
         } else {
             LUID* cLuid = GetCurrentLUID(hToken);
             if (cLuid == NULL) {
                 PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                return;
+                goto end;
             }
-            luid = *cLuid;
+            luid.HighPart = cLuid->HighPart;
+            luid.LowPart = cLuid->LowPart;
             currentLuid = TRUE;
+            MSVCRT$free(cLuid);
         }
         execute_purge(dispatch, hToken, luid, currentLuid);
     } else if (MSVCRT$strcmp(command, "help") == 0) {
@@ -217,5 +223,6 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
     } else {
         PRINT(dispatch, "[!] Unknown command.\n");
     }
+end:
     KERNEL32$CloseHandle(hToken);
 }
