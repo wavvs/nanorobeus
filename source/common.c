@@ -86,13 +86,19 @@ SYSTEMTIME ConvertToSystemtime(LARGE_INTEGER li) {
 }
 
 BOOL IsHighIntegrity(HANDLE TokenHandle) {
-    TOKEN_ELEVATION elevation;
-    DWORD dwSize;
-
-    if (ADVAPI32$GetTokenInformation(TokenHandle, TokenElevation, &elevation, sizeof(elevation), &dwSize)) {
-        return elevation.TokenIsElevated;
+    BOOL b;
+    SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+    PSID AdministratorsGroup;
+    b = ADVAPI32$AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0,
+                                          0, 0, 0, 0, &AdministratorsGroup);
+    if (b) {
+        if (!ADVAPI32$CheckTokenMembership(NULL, AdministratorsGroup, &b)) {
+            b = FALSE;
+        }
+        ADVAPI32$FreeSid(AdministratorsGroup);
     }
-    return FALSE;
+
+    return b;
 }
 
 BOOL IsSystem(HANDLE TokenHandle) {

@@ -58,6 +58,7 @@ WINADVAPI ULONG WINAPI ADVAPI32$LsaNtStatusToWinError(NTSTATUS Status);
 WINADVAPI WINBOOL WINAPI ADVAPI32$RevertToSelf();
 WINADVAPI WINBOOL WINAPI ADVAPI32$OpenThreadToken(HANDLE ThreadHandle, DWORD DesiredAccess, BOOL OpenAsSelf,
                                                   PHANDLE TokenHandle);
+WINADVAPI WINBOOL WINAPI ADVAPI32$CheckTokenMembership(HANDLE TokenHandle, PSID SidToCheck, PBOOL IsMember);
 
 // secur32
 WINBASEAPI NTSTATUS WINAPI SECUR32$LsaGetLogonSessionData(PLUID LogonId,
@@ -111,6 +112,7 @@ WINBASEAPI NTSTATUS WINAPI SECUR32$LsaConnectUntrusted(PHANDLE LsaHandle);
 #define ADVAPI32$LsaNtStatusToWinError LsaNtStatusToWinError
 #define ADVAPI32$RevertToSelf RevertToSelf
 #define ADVAPI32$OpenThreadToken OpenThreadToken
+#define ADVAPI32$CheckTokenMembership CheckTokenMembership
 
 #define SECUR32$LsaGetLogonSessionData LsaGetLogonSessionData
 #define SECUR32$LsaFreeReturnBuffer LsaFreeReturnBuffer
