@@ -45,7 +45,6 @@ BOOL IsSystem(HANDLE TokenHandle);
 NTSTATUS GetLsaHandle(HANDLE hProcessToken, BOOL highIntegrity, HANDLE* hLsa);
 int GetProcessIdByName(WCHAR* processName);
 BOOL ElevateToSystem();
-// BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL
-// bEnablePrivilege);
 char* GetNarrowString(WCHAR* src);
 char* GetNarrowStringFromUnicode(UNICODE_STRING src);
+WCHAR* GetWideString(char* src);

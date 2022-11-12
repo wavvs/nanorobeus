@@ -11,6 +11,7 @@
 #include "klist.c"
 #include "base64.c"
 #include "ptt.c"
+#include "tgtdeleg.c"
 #else
 #include "common.h"
 #include "luid.h"
@@ -19,6 +20,7 @@
 #include "klist.h"
 #include "base64.h"
 #include "ptt.h"
+#include "tgtdeleg.h"
 #endif
 
 void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3, char* arg4);
@@ -212,14 +214,38 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
             MSVCRT$free(cLuid);
         }
         execute_purge(dispatch, hToken, luid, currentLuid);
+    } else if (MSVCRT$strcmp(command, "tgtdeleg") == 0) {
+        char* spn = NULL;
+        int enc = 0;
+        if (MSVCRT$strcmp(arg1, "") != 0) {
+            spn = arg1;
+        } else {
+            goto end;
+        }
+
+        if (MSVCRT$strcmp(arg2, "") != 0) {
+            enc = MSVCRT$strtol(arg2, NULL, 16);
+            if (enc == 0) {
+                PRINT(dispatch, "[!] Specify valid encryption type.\n");
+                goto end;
+            }
+        }
+
+        if (enc == 0) {
+            execute_tgtdeleg(dispatch, spn);
+        } else {
+            PRINT(dispatch, "[*] Encryption: %s\n", GetEncryptionTypeString(enc));
+            execute_tgtdeleg_getkey(dispatch, hToken, spn, enc);
+        }
     } else if (MSVCRT$strcmp(command, "help") == 0) {
-        PRINT(dispatch, "[*] nanorobeus 0.0.1\n[*] Command list:\n");
+        PRINT(dispatch, "[*] nanorobeus 0.0.2\n[*] Command list:\n");
         PRINT(dispatch, "\tluid\n");
         PRINT(dispatch, "\tsessions [/luid <0x0> | /all]\n");
         PRINT(dispatch, "\tklist    [/luid <0x0> | /all]\n");
         PRINT(dispatch, "\tdump     [/luid <0x0> | /all]\n");
         PRINT(dispatch, "\tptt      <BASE64> [/luid <0x0>]\n");
         PRINT(dispatch, "\tpurge    [/luid <0x0>]\n");
+        PRINT(dispatch, "\ttgtdeleg <SPN> [<ENC_TYPE_HEX>]\n");
     } else {
         PRINT(dispatch, "[!] Unknown command.\n");
     }

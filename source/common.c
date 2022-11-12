@@ -217,45 +217,12 @@ BOOL ElevateToSystem() {
     return res;
 }
 
-// BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL
-// bEnablePrivilege)
-// {
-// 	TOKEN_PRIVILEGES tp;
-// 	LUID luid;
-
-// 	if (!ADVAPI32$LookupPrivilegeValueA(NULL, lpszPrivilege, &luid))
-// 	{
-// 		return FALSE;
-// 	}
-
-// 	tp.PrivilegeCount = 1;
-// 	tp.Privileges[0].Luid = luid;
-// 	if (bEnablePrivilege)
-// 	{
-// 		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-// 	}
-// 	else
-// 	{
-// 		tp.Privileges[0].Attributes = 0;
-// 	}
-
-// 	if (!ADVAPI32$AdjustTokenPrivileges(hToken, FALSE, &tp,
-// sizeof(TOKEN_PRIVILEGES), (PTOKEN_PRIVILEGES)NULL, 		(PDWORD)NULL))
-// 	{
-// 		return FALSE;
-// 	}
-
-// 	if (KERNEL32$GetLastError() == ERROR_NOT_ALL_ASSIGNED)
-// 	{
-// 		return FALSE;
-// 	}
-
-// 	return TRUE;
-// }
-
 char* GetNarrowStringFromUnicode(UNICODE_STRING src) {
     int len = src.Length / sizeof(WCHAR);
     char* dest = (char*)MSVCRT$calloc(len + 1, sizeof(char));
+    if (dest == NULL) {
+        return "(mem_alloc_error)";
+    }
     MSVCRT$wcstombs(dest, src.Buffer, len);
     dest[len] = '\0';
     return dest;
@@ -264,7 +231,20 @@ char* GetNarrowStringFromUnicode(UNICODE_STRING src) {
 char* GetNarrowString(WCHAR* src) {
     int len = MSVCRT$wcslen(src);
     char* dest = (char*)MSVCRT$calloc(len + 1, sizeof(char));
+    if (dest == NULL) {
+        return "(mem_alloc_error)";
+    }
     MSVCRT$wcstombs(dest, src, len);
     dest[len] = '\0';
+    return dest;
+}
+
+WCHAR* GetWideString(char* src) {
+    int len = MSVCRT$strlen(src);
+    WCHAR* dest = (WCHAR*)MSVCRT$calloc(len + 1, sizeof(WCHAR));
+    if (dest == NULL) {
+        return NULL;
+    }
+    MSVCRT$mbstowcs(dest, src, len);
     return dest;
 }

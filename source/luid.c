@@ -18,6 +18,9 @@ LUID* GetCurrentLUID(HANDLE TokenHandle) {
     }
 
     LUID* luid = MSVCRT$calloc(1, sizeof(LUID));
+    if (luid == NULL) {
+        return NULL;
+    }
     luid->HighPart = tokenStats.AuthenticationId.HighPart;
     luid->LowPart = tokenStats.AuthenticationId.LowPart;
     return luid;

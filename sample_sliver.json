@@ -1,6 +1,6 @@
 {
     "name": "nanorobeus",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "command_name": "nanorobeus",
     "extension_author": "wavvs",
     "original_author": "wavvs",
@@ -24,7 +24,7 @@
     "arguments": [
         {
             "name": "command",
-            "desc": "Command to execute (luid, sessions, klist, dump, ptt, purge, help)",
+            "desc": "Command to execute (luid, sessions, klist, dump, ptt, purge, tgtdeleg, help)",
             "type": "string",
             "optional": false
         },

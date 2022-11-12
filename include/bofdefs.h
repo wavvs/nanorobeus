@@ -1,16 +1,20 @@
 #pragma once
+#define SECURITY_WIN32
 
 #include <windows.h>
 #include <ntsecapi.h>
 #include <sddl.h>
 #include <tlhelp32.h>
 #include <stdio.h>
+#include <lm.h>
+#include <security.h>
 
 #if defined(BOF) || defined(BRC4)
 
 // kernel32
 WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentProcess(VOID);
 WINBASEAPI DWORD WINAPI KERNEL32$GetLastError(VOID);
+WINBASEAPI VOID WINAPI KERNEL32$SetLastError(DWORD dwErrCode);
 WINBASEAPI int WINAPI KERNEL32$FileTimeToSystemTime(CONST FILETIME* lpFileTime, LPSYSTEMTIME lpSystemTime);
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateToolhelp32Snapshot(DWORD dwFlags, DWORD th32ProcessID);
 WINBASEAPI WINBOOL WINAPI KERNEL32$Process32FirstW(HANDLE hSnapshot, LPPROCESSENTRY32W lppe);
@@ -31,6 +35,8 @@ WINBASEAPI void* __cdecl MSVCRT$calloc(size_t num, size_t size);
 WINBASEAPI void __cdecl MSVCRT$free(void* memblock);
 WINBASEAPI void* __cdecl MSVCRT$memcpy(void* __restrict__ _Dst, const void* __restrict__ _Src, size_t _MaxCount);
 WINBASEAPI void __cdecl MSVCRT$memset(void* dest, int c, size_t count);
+WINBASEAPI int __cdecl MSVCRT$sprintf(char* __restrict__ _Dest, const char* __restrict__ _Format, ...);
+WINBASEAPI size_t __cdecl MSVCRT$mbstowcs(wchar_t * __restrict__ _Dest,const char * __restrict__ _Source,size_t _MaxCount);
 
 // advapi32
 WINADVAPI WINBOOL WINAPI ADVAPI32$OpenProcessToken(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
@@ -75,10 +81,23 @@ WINBASEAPI NTSTATUS WINAPI SECUR32$LsaCallAuthenticationPackage(HANDLE LsaHandle
                                                                 PNTSTATUS ProtocolStatus);
 WINBASEAPI NTSTATUS WINAPI SECUR32$LsaDeregisterLogonProcess(HANDLE LsaHandle);
 WINBASEAPI NTSTATUS WINAPI SECUR32$LsaConnectUntrusted(PHANDLE LsaHandle);
+WINBASEAPI SECURITY_STATUS WINAPI SECUR32$AcquireCredentialsHandleA(SEC_CHAR* pszPrincipal, SEC_CHAR* pszPackage,
+                                                                    unsigned __LONG32 fCredentialUse, void* pvLogonId,
+                                                                    void* pAuthData, SEC_GET_KEY_FN pGetKeyFn,
+                                                                    void* pvGetKeyArgument, PCredHandle phCredential,
+                                                                    PTimeStamp ptsExpiry);
+WINBASEAPI SECURITY_STATUS WINAPI SECUR32$InitializeSecurityContextA(
+    PCredHandle phCredential, PCtxtHandle phContext, SEC_CHAR* pszTargetName, unsigned __LONG32 fContextReq,
+    unsigned __LONG32 Reserved1, unsigned __LONG32 TargetDataRep, PSecBufferDesc pInput, unsigned __LONG32 Reserved2,
+    PCtxtHandle phNewContext, PSecBufferDesc pOutput, unsigned __LONG32* pfContextAttr, PTimeStamp ptsExpiry);
+WINBASEAPI SECURITY_STATUS WINAPI SECUR32$FreeContextBuffer(void *pvContextBuffer);
+KSECDDDECLSPEC SECURITY_STATUS WINAPI SECUR32$DeleteSecurityContext(PCtxtHandle phContext);
+KSECDDDECLSPEC SECURITY_STATUS WINAPI SECUR32$FreeCredentialsHandle(PCredHandle phCredential);
 #else
 
 #define KERNEL32$GetCurrentProcess GetCurrentProcess
 #define KERNEL32$GetLastError GetLastError
+#define KERNEL32$SetLastError SetLastError
 #define KERNEL32$FileTimeToSystemTime FileTimeToSystemTime
 #define KERNEL32$CreateToolhelp32Snapshot CreateToolhelp32Snapshot
 #define KERNEL32$Process32FirstW Process32FirstW
@@ -98,6 +117,8 @@ WINBASEAPI NTSTATUS WINAPI SECUR32$LsaConnectUntrusted(PHANDLE LsaHandle);
 #define MSVCRT$free free
 #define MSVCRT$memcpy memcpy
 #define MSVCRT$memset memset
+#define MSVCRT$sprintf sprintf
+#define MSVCRT$mbstowcs mbstowcs
 
 #define ADVAPI32$OpenProcessToken OpenProcessToken
 #define ADVAPI32$GetTokenInformation GetTokenInformation
@@ -122,4 +143,9 @@ WINBASEAPI NTSTATUS WINAPI SECUR32$LsaConnectUntrusted(PHANDLE LsaHandle);
 #define SECUR32$LsaCallAuthenticationPackage LsaCallAuthenticationPackage
 #define SECUR32$LsaDeregisterLogonProcess LsaDeregisterLogonProcess
 #define SECUR32$LsaConnectUntrusted LsaConnectUntrusted
+#define SECUR32$AcquireCredentialsHandleA AcquireCredentialsHandleA
+#define SECUR32$InitializeSecurityContextA InitializeSecurityContextA
+#define SECUR32$FreeContextBuffer FreeContextBuffer
+#define SECUR32$DeleteSecurityContext DeleteSecurityContext
+#define SECUR32$FreeCredentialsHandle FreeCredentialsHandle
 #endif

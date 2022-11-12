@@ -15,12 +15,6 @@ void execute_sessions(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLu
         for (int i = 0; i < sessionData.sessionCount; i++) {
             data = sessionData.sessionData[i];
             if (data != NULL) {
-                // PRINT(dispatch, "[%d] Session %d %x:0x%x %s\\%s %s:%s\n",
-                //     i, data->Session, data->LogonId.HighPart, data->LogonId.LowPart,
-                //     GetNarrowString(data->LogonDomain.Buffer),
-                //     GetNarrowString(data->UserName.Buffer),
-                //     GetNarrowString(data->AuthenticationPackage.Buffer),
-                //     GetLogonTypeString(data->LogonType));
                 PrintLogonSessionData(dispatch, *data);
                 if (i != sessionData.sessionCount - 1) {
                     PRINT(dispatch, "\n\n");

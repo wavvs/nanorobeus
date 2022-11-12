@@ -38,16 +38,18 @@ void execute_purge(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid)
     }
     purgeRequest.RealmName = (UNICODE_STRING){.Buffer = L"", .Length = 0, .MaximumLength = 1};
     purgeRequest.ServerName = (UNICODE_STRING){.Buffer = L"", .Length = 0, .MaximumLength = 1};
-    status =
-        SECUR32$LsaCallAuthenticationPackage(hLsa, authPackage, &purgeRequest, sizeof(KERB_PURGE_TKT_CACHE_REQUEST),
-                                             &purgeResponse, &responseSize, &protocolStatus);
+    status = SECUR32$LsaCallAuthenticationPackage(hLsa, authPackage, &purgeRequest, 
+        sizeof(KERB_PURGE_TKT_CACHE_REQUEST), &purgeResponse, &responseSize, &protocolStatus);
 
-    if (!NT_SUCCESS(status) || !NT_SUCCESS(protocolStatus)) {
-        PRINT(dispatch, "[!] LsaCallAuthenticationPackage %ld\n", ADVAPI32$LsaNtStatusToWinError(status));
-        PRINT(dispatch, "[!] LsaCallAuthenticationPackage ProtocolStatus %ld\n",
-              ADVAPI32$LsaNtStatusToWinError(protocolStatus));
+    if (NT_SUCCESS(status)) {
+        if (NT_SUCCESS(protocolStatus)) {
+            PRINT(dispatch, "[+] Successfully purged tickets.\n");
+        } else {
+            PRINT(dispatch, "[!] LsaCallAuthenticationPackage ProtocolStatus %ld\n",
+                  ADVAPI32$LsaNtStatusToWinError(protocolStatus));
+        }
     } else {
-        PRINT(dispatch, "[+] Successfully purged tickets.\n");
+        PRINT(dispatch, "[!] LsaCallAuthenticationPackage %ld\n", ADVAPI32$LsaNtStatusToWinError(status));
     }
 
     SECUR32$LsaDeregisterLogonProcess(hLsa);

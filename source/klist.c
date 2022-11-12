@@ -74,7 +74,7 @@ void execute_klist(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid,
                     } else {
                         if (ticketSize > 0) {
                             int len = Base64encode_len(ticketSize);
-                            char* encoded = (char*)MSVCRT$calloc(len, sizeof(char*));
+                            char* encoded = (char*)MSVCRT$calloc(len, sizeof(char));
                             if (encoded == NULL) {
                                 PRINT(dispatch, "[!] Base64 - could not allocate memory.\n");
                                 continue;
@@ -117,10 +117,11 @@ NTSTATUS ExtractTicket(HANDLE hLsa, ULONG authPackage, LUID luid, UNICODE_STRING
     NTSTATUS status = STATUS_SUCCESS;
     status = SECUR32$LsaCallAuthenticationPackage(hLsa, authPackage, retrieveRequest, responseSize, &retrieveResponse,
                                                   &responseSize, &protocolStatus);
+    MSVCRT$free(retrieveRequest);
     if (NT_SUCCESS(status)) {
         if (NT_SUCCESS(protocolStatus)) {
             if (responseSize > 0) {
-                ULONG size = retrieveResponse->Ticket.EncodedTicketSize * sizeof(UCHAR);
+                ULONG size = retrieveResponse->Ticket.EncodedTicketSize;
                 PUCHAR returnTicket = (PUCHAR)MSVCRT$calloc(size, sizeof(UCHAR));
                 if (returnTicket != NULL) {
                     MSVCRT$memcpy(returnTicket, retrieveResponse->Ticket.EncodedTicket, size);
@@ -141,56 +142,32 @@ NTSTATUS ExtractTicket(HANDLE hLsa, ULONG authPackage, LUID luid, UNICODE_STRING
 }
 
 void PrintTicketFlags(WCHAR** dispatch, ULONG ticketFlags) {
-    if ((ticketFlags & KERB_TICKET_FLAGS_forwardable) == KERB_TICKET_FLAGS_forwardable) {
-        PRINT(dispatch, "forwardable");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_forwarded) == KERB_TICKET_FLAGS_forwarded) {
-        PRINT(dispatch, ", forwarded");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_proxiable) == KERB_TICKET_FLAGS_proxiable) {
-        PRINT(dispatch, ", proxiable");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_proxy) == KERB_TICKET_FLAGS_proxy) {
-        PRINT(dispatch, ", proxy");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_may_postdate) == KERB_TICKET_FLAGS_may_postdate) {
-        PRINT(dispatch, ", may_postdate");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_postdated) == KERB_TICKET_FLAGS_postdated) {
-        PRINT(dispatch, ", postdated");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_invalid) == KERB_TICKET_FLAGS_invalid) {
-        PRINT(dispatch, ", invalid");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_renewable) == KERB_TICKET_FLAGS_renewable) {
-        PRINT(dispatch, ", renewable");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_initial) == KERB_TICKET_FLAGS_initial) {
-        PRINT(dispatch, ", initial");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_pre_authent) == KERB_TICKET_FLAGS_pre_authent) {
-        PRINT(dispatch, ", pre_authent");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_hw_authent) == KERB_TICKET_FLAGS_hw_authent) {
-        PRINT(dispatch, ", hw_authent");
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_ok_as_delegate) == KERB_TICKET_FLAGS_ok_as_delegate) {
-#if (_WIN32_WINNT == 0x0501)
-        PRINT(dispatch, ", cname_in_pa_data");
-#else
-        PRINT(dispatch, ", ok_as_delegate");
-#endif
-    }
-    if ((ticketFlags & KERB_TICKET_FLAGS_name_canonicalize) == KERB_TICKET_FLAGS_name_canonicalize) {
-        PRINT(dispatch, ", name_canonicalize");
-    }
-    // if ((ticketFlags & KERB_TICKET_FLAGS_enc_pa_rep) ==
-    // KERB_TICKET_FLAGS_enc_pa_rep)
-    // {
-    // 	PRINT(dispatch, ", enc_pa_rep");
-    // }
 
-    PRINT(dispatch, " (0x%lx)\n", ticketFlags);
+    char* flags[16] = {
+        "name_canonicalize", 
+        "anonymous", 
+        "ok_as_delegate",
+        "?",
+        "hw_authent",
+        "pre_authent",
+        "initial",
+        "renewable",
+        "invalid",
+        "postdated",
+        "may_postdate",
+        "proxy",
+        "proxiable",
+        "forwarded",
+        "forwardable",
+        "reserved"
+    };
+
+    for (int i = 0; i < 16; i++) {
+        if ((ticketFlags >> (i + 16)) & 1) {
+            PRINT(dispatch, "%s ", flags[i]);
+        }
+    }
+    PRINT(dispatch, "(0x%lx)\n", ticketFlags);
 }
 
 void PrintTicketInfo(WCHAR** dispatch, KERB_TICKET_CACHE_INFO_EX cacheInfo) {

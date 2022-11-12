@@ -6,11 +6,11 @@ OPTIONS := -O3 -masm=intel -Wall -I include
 
 nanorobeus: 
 	$(CC_x64) source/base64.c source/common.c source/klist.c source/luid.c source/ptt.c source/purge.c \
-		source/sessions.c source/entry.c -o dist/$(BOFNAME).x64.exe $(OPTIONS) -l advapi32 -l secur32
+		source/sessions.c source/entry.c source/tgtdeleg.c -o dist/$(BOFNAME).x64.exe $(OPTIONS) -l advapi32 -l secur32
 	$(STRIP) --strip-all dist/$(BOFNAME).x64.exe
 	
 	$(CC_x86) source/base64.c source/common.c source/klist.c source/luid.c source/ptt.c source/purge.c \
-		source/sessions.c source/entry.c -o dist/$(BOFNAME).x86.exe $(OPTIONS) -l advapi32 -l secur32
+		source/sessions.c source/entry.c source/tgtdeleg.c -o dist/$(BOFNAME).x86.exe $(OPTIONS) -l advapi32 -l secur32
 	$(STRIP) --strip-all dist/$(BOFNAME).x86.exe
 
 	$(CC_x64) -c source/entry.c -o dist/$(BOFNAME).x64.o -DBOF $(OPTIONS)
