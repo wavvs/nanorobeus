@@ -1,13 +1,13 @@
 #include "purge.h"
 
-void execute_purge(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid) {
+void execute_purge(WCHAR** dispatch, LUID luid, BOOL currentLuid) {
     ULONG authPackage;
     HANDLE hLsa;
     void* purgeResponse;
     ULONG responseSize;
     NTSTATUS protocolStatus;
 
-    BOOL highIntegrity = IsHighIntegrity(hToken);
+    BOOL highIntegrity = IsHighIntegrity();
     if (!highIntegrity && !currentLuid) {
         PRINT(dispatch, "[!] Not in high integrity.\n");
         return;
@@ -17,7 +17,7 @@ void execute_purge(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid)
         highIntegrity = FALSE;
     }
 
-    NTSTATUS status = GetLsaHandle(hToken, highIntegrity, &hLsa);
+    NTSTATUS status = GetLsaHandle(highIntegrity, &hLsa);
     if (!NT_SUCCESS(status)) {
         PRINT(dispatch, "[!] GetLsaHandle %ld\n", status);
         return;

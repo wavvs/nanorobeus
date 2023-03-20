@@ -48,7 +48,6 @@ typedef struct _KERB_ECRYPT {
 #if defined(BOF) || defined(BRC4)
 
 // kernel32
-WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentProcess(VOID);
 WINBASEAPI DWORD WINAPI KERNEL32$GetLastError(VOID);
 WINBASEAPI VOID WINAPI KERNEL32$SetLastError(DWORD dwErrCode);
 WINBASEAPI int WINAPI KERNEL32$FileTimeToSystemTime(CONST FILETIME* lpFileTime, LPSYSTEMTIME lpSystemTime);
@@ -57,10 +56,8 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$Process32FirstW(HANDLE hSnapshot, LPPROCESSEN
 WINBASEAPI WINBOOL WINAPI KERNEL32$Process32NextW(HANDLE hSnapshot, LPPROCESSENTRY32W lppe);
 WINBASEAPI WINBOOL WINAPI KERNEL32$CloseHandle(HANDLE hObject);
 WINBASEAPI HANDLE WINAPI KERNEL32$OpenProcess(DWORD dwDesiredAccess, WINBOOL bInheritHandle, DWORD dwProcessId);
-WINBASEAPI HANDLE WINAPI KERNEL32$GetCurrentThread();
-WINBASEAPI int WINAPI KERNEL32$lstrlenA(LPCSTR lpString);
-WINBASEAPI __declspec(allocator) HLOCAL WINAPI KERNEL32$LocalAlloc(UINT uFlags, SIZE_T uBytes);
-WINBASEAPI HLOCAL WINAPI KERNEL32$LocalFree(HLOCAL hMem);
+WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
+WINBASEAPI FARPROC WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
 
 // msvcrt
 WINBASEAPI int __cdecl MSVCRT$strcmp(const char* _Str1, const char* _Str2);
@@ -69,12 +66,10 @@ WINBASEAPI size_t __cdecl MSVCRT$strlen(const char* _Str);
 WINBASEAPI size_t __cdecl MSVCRT$wcstombs(char* mbstr, const wchar_t* wcstr, size_t count);
 WINBASEAPI long __cdecl MSVCRT$strtol(const char* string, char** end_ptr, int base);
 WINBASEAPI int __cdecl MSVCRT$wcscmp(const wchar_t* string1, const wchar_t* string2);
-WINBASEAPI void* __cdecl MSVCRT$malloc(size_t size);
 WINBASEAPI void* __cdecl MSVCRT$calloc(size_t num, size_t size);
 WINBASEAPI void __cdecl MSVCRT$free(void* memblock);
 WINBASEAPI void* __cdecl MSVCRT$memcpy(void* __restrict__ _Dst, const void* __restrict__ _Src, size_t _MaxCount);
 WINBASEAPI void __cdecl MSVCRT$memset(void* dest, int c, size_t count);
-WINBASEAPI int __cdecl MSVCRT$sprintf(char* __restrict__ _Dest, const char* __restrict__ _Format, ...);
 WINBASEAPI size_t __cdecl MSVCRT$mbstowcs(wchar_t* __restrict__ _Dest, const char* __restrict__ _Source,
                                           size_t _MaxCount);
 WINBASEAPI int __cdecl MSVCRT$memcmp(const void* p1, const void* p2, size_t sizeSearch);
@@ -183,7 +178,6 @@ WINBASEAPI int ASN1API MSASN1$ASN1DEREncOctetString(ASN1encoding_t enc, ASN1uint
 #else
 __declspec(dllimport) NTSTATUS WINAPI CDLocateCSystem(LONG type, PKERB_ECRYPT* pCSystem);
 
-#define KERNEL32$GetCurrentProcess GetCurrentProcess
 #define KERNEL32$GetLastError GetLastError
 #define KERNEL32$SetLastError SetLastError
 #define KERNEL32$FileTimeToSystemTime FileTimeToSystemTime
@@ -192,10 +186,6 @@ __declspec(dllimport) NTSTATUS WINAPI CDLocateCSystem(LONG type, PKERB_ECRYPT* p
 #define KERNEL32$Process32NextW Process32NextW
 #define KERNEL32$CloseHandle CloseHandle
 #define KERNEL32$OpenProcess OpenProcess
-#define KERNEL32$GetCurrentThread GetCurrentThread
-#define KERNEL32$lstrlenA lstrlenA
-#define KERNEL32$LocalAlloc LocalAlloc
-#define KERNEL32$LocalFree LocalFree
 
 #define MSVCRT$strcmp strcmp
 #define MSVCRT$wcslen wcslen
@@ -203,12 +193,10 @@ __declspec(dllimport) NTSTATUS WINAPI CDLocateCSystem(LONG type, PKERB_ECRYPT* p
 #define MSVCRT$wcstombs wcstombs
 #define MSVCRT$wcscmp wcscmp
 #define MSVCRT$strtol strtol
-#define MSVCRT$malloc malloc
 #define MSVCRT$calloc calloc
 #define MSVCRT$free free
 #define MSVCRT$memcpy memcpy
 #define MSVCRT$memset memset
-#define MSVCRT$sprintf sprintf
 #define MSVCRT$mbstowcs mbstowcs
 #define MSVCRT$memcmp memcmp
 

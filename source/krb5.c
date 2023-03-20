@@ -44,7 +44,7 @@ static void ASN1CALL ASN1Free_KERB_AUTHENTICATOR(KERB_AUTHENTICATOR* val);
 static void ASN1CALL ASN1Free_PKERB_AUTHORIZATION_DATA_Seq(PKERB_AUTHORIZATION_DATA_Seq* val);
 static void ASN1CALL ASN1Free_PKERB_AUTHORIZATION_DATA(PPKERB_AUTHORIZATION_DATA* val);
 static void ASN1CALL ASN1Free_KERB_CHECKSUM(KERB_CHECKSUM* val);
-static void ASN1CALL ASN1Free_KERB_REPLY_KEY_PACKAGE2(KERB_REPLY_KEY_PACKAGE2* val);
+//static void ASN1CALL ASN1Free_KERB_REPLY_KEY_PACKAGE2(KERB_REPLY_KEY_PACKAGE2* val);
 static void ASN1CALL ASN1Free_KERB_ENCRYPTION_KEY(KERB_ENCRYPTION_KEY* val);
 static void ASN1CALL ASN1Free_KERB_CRED(KERB_CRED* val);
 static void ASN1CALL ASN1Free_KERB_CRED_tickets(PKERB_CRED_tickets* val);
@@ -309,7 +309,7 @@ KERBERR NTAPI KerbPackData(ASN1module_t module, PVOID Data, ULONG PduValue, PULO
         KerbErr = KRB_ERR_GENERIC;
         goto Cleanup;
     } else {
-        *EncodedData = KERNEL32$LocalAlloc(LPTR, pEnc->len);
+        *EncodedData = MSVCRT$calloc(pEnc->len, sizeof(UCHAR));
         if (*EncodedData == NULL) {
             KerbErr = KRB_ERR_GENERIC;
             *DataSize = 0;
@@ -440,7 +440,7 @@ static int ASN1CALL ASN1Enc_KERB_TICKET(ASN1encoding_t enc, ASN1uint32_t tag, KE
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x80000000, &nLenOff0)) return 0;
     if (!MSASN1$ASN1BEREncS32(enc, 0x2, (val)->ticket_version)) return 0;
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff0)) return 0;
-    t = KERNEL32$lstrlenA((val)->realm);
+    t = MSVCRT$strlen((val)->realm);
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x80000001, &nLenOff0)) return 0;
     if (!MSASN1$ASN1DEREncCharString(enc, 0x1b, t, (val)->realm)) return 0;
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff0)) return 0;
@@ -481,7 +481,7 @@ static int ASN1CALL ASN1Enc_KERB_PRINCIPAL_NAME_name_string(ASN1encoding_t enc, 
     if (!MSASN1$ASN1BEREncExplicitTag(enc, tag ? tag : 0x80000001, &nLenOff0)) return 0;
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x10, &nLenOff)) return 0;
     for (f = *val; f; f = f->next) {
-        t = KERNEL32$lstrlenA(f->value);
+        t = MSVCRT$strlen(f->value);
         if (!MSASN1$ASN1DEREncCharString(enc, 0x1b, t, f->value)) return 0;
     }
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff)) return 0;
@@ -942,14 +942,14 @@ static void ASN1CALL ASN1Free_KERB_CHECKSUM(KERB_CHECKSUM* val) {
     }
 }
 
-static void ASN1CALL ASN1Free_KERB_REPLY_KEY_PACKAGE2(KERB_REPLY_KEY_PACKAGE2* val) {
-    if (val) {
-        ASN1Free_KERB_ENCRYPTION_KEY(&(val)->reply_key);
-        if ((val)->o[0] & 0x80) {
-            MSASN1$ASN1bitstring_free(&(val)->subject_public_key);
-        }
-    }
-}
+// static void ASN1CALL ASN1Free_KERB_REPLY_KEY_PACKAGE2(KERB_REPLY_KEY_PACKAGE2* val) {
+//     if (val) {
+//         ASN1Free_KERB_ENCRYPTION_KEY(&(val)->reply_key);
+//         if ((val)->o[0] & 0x80) {
+//             MSASN1$ASN1bitstring_free(&(val)->subject_public_key);
+//         }
+//     }
+// }
 
 static void ASN1CALL ASN1Free_KERB_ENCRYPTION_KEY(KERB_ENCRYPTION_KEY* val) {
     if (val) {

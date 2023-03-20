@@ -1,7 +1,7 @@
 #include "sessions.h"
 
-void execute_sessions(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid) {
-    BOOL highIntegrity = IsHighIntegrity(hToken);
+void execute_sessions(WCHAR** dispatch, LUID luid, BOOL currentLuid) {
+    BOOL highIntegrity = IsHighIntegrity();
     if (!highIntegrity && !currentLuid) {
         PRINT(dispatch, "[!] Not in high integrity.\n");
         return;

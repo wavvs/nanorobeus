@@ -1,16 +1,17 @@
 #include "ptt.h"
 
-void execute_ptt(WCHAR** dispatch, HANDLE hToken, char* ticket, LUID luid, BOOL currentLuid) {
-    BOOL highIntegrity = IsHighIntegrity(hToken);
+void execute_ptt(WCHAR** dispatch, char* ticket, LUID luid, BOOL currentLuid) {
+    BOOL highIntegrity = IsHighIntegrity();
     if (!highIntegrity && !currentLuid) {
         PRINT(dispatch, "[!] Not in high integrity.\n");
         return;
     }
     HANDLE hLsa;
     if (currentLuid) {
+        // no need to register lsa logon process
         highIntegrity = FALSE;
     }
-    NTSTATUS status = GetLsaHandle(hToken, highIntegrity, &hLsa);
+    NTSTATUS status = GetLsaHandle(highIntegrity, &hLsa);
     if (!NT_SUCCESS(status)) {
         PRINT(dispatch, "[!] GetLsaHandle %ld\n", status);
         return;

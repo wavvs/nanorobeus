@@ -1,13 +1,13 @@
 #include "klist.h"
 
-void execute_klist(WCHAR** dispatch, HANDLE hToken, LUID luid, BOOL currentLuid, BOOL dump) {
-    BOOL highIntegrity = IsHighIntegrity(hToken);
+void execute_klist(WCHAR** dispatch, LUID luid, BOOL currentLuid, BOOL dump) {
+    BOOL highIntegrity = IsHighIntegrity();
     if (!highIntegrity && !currentLuid) {
         PRINT(dispatch, "[!] Not in high integrity.\n");
         return;
     }
     HANDLE hLsa;
-    NTSTATUS status = GetLsaHandle(hToken, highIntegrity, &hLsa);
+    NTSTATUS status = GetLsaHandle(highIntegrity, &hLsa);
     if (!NT_SUCCESS(status)) {
         PRINT(dispatch, "[!] GetLsaHandle %ld\n", status);
         return;

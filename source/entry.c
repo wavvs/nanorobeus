@@ -112,14 +112,9 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
 
     LUID luid = (LUID){.HighPart = 0, .LowPart = 0};
     BOOL currentLuid = FALSE;
-    HANDLE hToken = GetCurrentToken(TOKEN_QUERY);
-    if (hToken == NULL) {
-        PRINT(dispatch, "[!] Unable to query current token: %ld\n", KERNEL32$GetLastError());
-        return;
-    }
 
     if (MSVCRT$strcmp(command, "luid") == 0) {
-        execute_luid(dispatch, hToken);
+        execute_luid(dispatch);
     } else if ((MSVCRT$strcmp(command, "sessions") == 0) || (MSVCRT$strcmp(command, "klist") == 0) ||
                (MSVCRT$strcmp(command, "dump") == 0)) {
         if (MSVCRT$strcmp(arg1, "") != 0) {
@@ -128,23 +123,23 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
-                        goto end;
+                        return;
                     }
                 } else {
                     PRINT(dispatch, "[!] Specify /luid argument\n");
-                    goto end;
+                    return;
                 }
             } else if (MSVCRT$strcmp(arg1, "/all") == 0) {
                 luid = (LUID){.HighPart = 0, .LowPart = 0};
             } else {
                 PRINT(dispatch, "[!] Unknown command\n");
-                goto end;
+                return;
             }
         } else {
-            LUID* cLuid = GetCurrentLUID(hToken);
+            LUID* cLuid = GetCurrentLUID();
             if (cLuid == NULL) {
                 PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                goto end;
+                return;
             }
             luid.HighPart = cLuid->HighPart;
             luid.LowPart = cLuid->LowPart;
@@ -153,11 +148,11 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
         }
 
         if (MSVCRT$strcmp(command, "sessions") == 0) {
-            execute_sessions(dispatch, hToken, luid, currentLuid);
+            execute_sessions(dispatch, luid, currentLuid);
         } else if (MSVCRT$strcmp(command, "klist") == 0) {
-            execute_klist(dispatch, hToken, luid, currentLuid, FALSE);
+            execute_klist(dispatch, luid, currentLuid, FALSE);
         } else {
-            execute_klist(dispatch, hToken, luid, currentLuid, TRUE);
+            execute_klist(dispatch, luid, currentLuid, TRUE);
         }
     } else if (MSVCRT$strcmp(command, "ptt") == 0) {
         char* ticket;
@@ -169,25 +164,25 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                         luid.LowPart = MSVCRT$strtol(arg3, NULL, 16);
                         if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                             PRINT(dispatch, "[!] Specify valid /luid\n");
-                            goto end;
+                            return;
                         }
                     }
                 }
             } else {
-                LUID* cLuid = GetCurrentLUID(hToken);
+                LUID* cLuid = GetCurrentLUID();
                 if (cLuid == NULL) {
                     PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                    goto end;
+                    return;
                 }
                 luid.HighPart = cLuid->HighPart;
                 luid.LowPart = cLuid->LowPart;
                 currentLuid = TRUE;
                 MSVCRT$free(cLuid);
             }
-            execute_ptt(dispatch, hToken, ticket, luid, currentLuid);
+            execute_ptt(dispatch, ticket, luid, currentLuid);
         } else {
             PRINT(dispatch, "[!] Specify Base64 encoded ticket\n");
-            goto end;
+            return;
         }
     } else if (MSVCRT$strcmp(command, "purge") == 0) {
         if (MSVCRT$strcmp(arg1, "") != 0) {
@@ -196,48 +191,48 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
-                        goto end;
+                        return;
                     }
                 } else {
                     PRINT(dispatch, "[!] Specify /luid argument\n");
-                    goto end;
+                    return;
                 }
             } else {
                 PRINT(dispatch, "[!] Unknown command\n");
-                goto end;
+                return;
             }
         } else {
-            LUID* cLuid = GetCurrentLUID(hToken);
+            LUID* cLuid = GetCurrentLUID();
             if (cLuid == NULL) {
                 PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
-                goto end;
+                return;
             }
             luid.HighPart = cLuid->HighPart;
             luid.LowPart = cLuid->LowPart;
             currentLuid = TRUE;
             MSVCRT$free(cLuid);
         }
-        execute_purge(dispatch, hToken, luid, currentLuid);
+        execute_purge(dispatch, luid, currentLuid);
     } else if (MSVCRT$strcmp(command, "tgtdeleg") == 0) {
         char* spn = NULL;
         if (MSVCRT$strcmp(arg1, "") != 0) {
             spn = arg1;
         } else {
             PRINT(dispatch, "[!] Specify SPN\n");
-            goto end;
+            return;
         }
-        execute_tgtdeleg(dispatch, hToken, spn);
+        execute_tgtdeleg(dispatch, spn);
     } else if (MSVCRT$strcmp(command, "kerberoast") == 0) {
         char* spn = NULL;
         if (MSVCRT$strcmp(arg1, "") != 0) {
             spn = arg1;
         } else {
             PRINT(dispatch, "[!] Specify SPN\n");
-            goto end;
+            return;
         }
         execute_kerberoast(dispatch, spn);
     } else if (MSVCRT$strcmp(command, "help") == 0) {
-        PRINT(dispatch, "[*] nanorobeus 0.0.3\n[*] Command list:\n");
+        PRINT(dispatch, "[*] nanorobeus 0.0.4\n[*] Command list:\n");
         PRINT(dispatch, "\tluid\n");
         PRINT(dispatch, "\tsessions [/luid <0x0> | /all]\n");
         PRINT(dispatch, "\tklist    [/luid <0x0> | /all]\n");
@@ -249,6 +244,4 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
     } else {
         PRINT(dispatch, "[!] Unknown command.\n");
     }
-end:
-    KERNEL32$CloseHandle(hToken);
 }

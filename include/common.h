@@ -40,9 +40,9 @@ enum KERB_ETYPE {
 HANDLE GetCurrentToken(DWORD DesiredAccess);
 char* GetEncryptionTypeString(LONG encType);
 SYSTEMTIME ConvertToSystemtime(LARGE_INTEGER li);
-BOOL IsHighIntegrity(HANDLE TokenHandle);
-BOOL IsSystem(HANDLE TokenHandle);
-NTSTATUS GetLsaHandle(HANDLE hProcessToken, BOOL highIntegrity, HANDLE* hLsa);
+BOOL IsHighIntegrity();
+BOOL IsSystem();
+NTSTATUS GetLsaHandle(BOOL highIntegrity, HANDLE* hLsa);
 int GetProcessIdByName(WCHAR* processName);
 BOOL ElevateToSystem();
 char* GetNarrowString(WCHAR* src);

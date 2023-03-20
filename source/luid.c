@@ -1,7 +1,7 @@
 #include "luid.h"
 
-void execute_luid(WCHAR** dispatch, HANDLE hToken) {
-    LUID* currentLUID = GetCurrentLUID(hToken);
+void execute_luid(WCHAR** dispatch) {
+    LUID* currentLUID = GetCurrentLUID();
     if (currentLUID == NULL) {
         PRINT(dispatch, "[!] Unable to get current session LUID: %ld\n", KERNEL32$GetLastError());
         return;
@@ -10,13 +10,20 @@ void execute_luid(WCHAR** dispatch, HANDLE hToken) {
     MSVCRT$free(currentLUID);
 }
 
-LUID* GetCurrentLUID(HANDLE TokenHandle) {
+LUID* GetCurrentLUID() {
     TOKEN_STATISTICS tokenStats;
     DWORD tokenSize;
-    if (!ADVAPI32$GetTokenInformation(TokenHandle, TokenStatistics, &tokenStats, sizeof(tokenStats), &tokenSize)) {
+    HANDLE hToken = GetCurrentToken(0x8); // TOKEN_QUERY
+    if (hToken != NULL) {
+        if (ADVAPI32$GetTokenInformation(hToken, TokenStatistics, &tokenStats, sizeof(tokenStats), &tokenSize)) {
+            KERNEL32$CloseHandle(hToken);
+        } else {
+            return NULL;
+        }
+    } else {
         return NULL;
     }
-
+    
     LUID* luid = MSVCRT$calloc(1, sizeof(LUID));
     if (luid == NULL) {
         return NULL;

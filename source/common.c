@@ -2,9 +2,9 @@
 
 HANDLE GetCurrentToken(DWORD DesiredAccess) {
     HANDLE hCurrentToken = NULL;
-    if (!ADVAPI32$OpenThreadToken(KERNEL32$GetCurrentThread(), DesiredAccess, FALSE, &hCurrentToken)) {
+    if (!ADVAPI32$OpenThreadToken((HANDLE)-2, DesiredAccess, FALSE, &hCurrentToken)) {
         if (hCurrentToken == NULL && KERNEL32$GetLastError() == ERROR_NO_TOKEN) {
-            if (!ADVAPI32$OpenProcessToken(KERNEL32$GetCurrentProcess(), DesiredAccess, &hCurrentToken)) {
+            if (!ADVAPI32$OpenProcessToken((HANDLE)-1, DesiredAccess, &hCurrentToken)) {
                 return NULL;
             }
         }
@@ -85,12 +85,13 @@ SYSTEMTIME ConvertToSystemtime(LARGE_INTEGER li) {
     return st_utc;
 }
 
-BOOL IsHighIntegrity(HANDLE TokenHandle) {
+BOOL IsHighIntegrity() {
     BOOL b;
     SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
     PSID AdministratorsGroup;
     b = ADVAPI32$AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0,
                                           0, 0, 0, 0, &AdministratorsGroup);
+        
     if (b) {
         if (!ADVAPI32$CheckTokenMembership(NULL, AdministratorsGroup, &b)) {
             b = FALSE;
@@ -101,14 +102,18 @@ BOOL IsHighIntegrity(HANDLE TokenHandle) {
     return b;
 }
 
-BOOL IsSystem(HANDLE TokenHandle) {
-    HANDLE hToken = NULL;
+BOOL IsSystem() {
+    HANDLE hToken;
     UCHAR bTokenUser[sizeof(TOKEN_USER) + 8 + 4 * SID_MAX_SUB_AUTHORITIES];
     PTOKEN_USER pTokenUser = (PTOKEN_USER)bTokenUser;
     ULONG cbTokenUser;
     SID_IDENTIFIER_AUTHORITY siaNT = SECURITY_NT_AUTHORITY;
     PSID pSystemSid;
     BOOL bSystem;
+
+    if (!ADVAPI32$OpenProcessToken((HANDLE)-1, TOKEN_QUERY, &hToken)) {
+        return FALSE;
+    }
 
     if (!ADVAPI32$GetTokenInformation(hToken, TokenUser, pTokenUser, sizeof(bTokenUser), &cbTokenUser)) {
         return FALSE;
@@ -122,7 +127,7 @@ BOOL IsSystem(HANDLE TokenHandle) {
     return bSystem;
 }
 
-NTSTATUS GetLsaHandle(HANDLE hToken, BOOL highIntegrity, HANDLE* hLsa) {
+NTSTATUS GetLsaHandle(BOOL highIntegrity, HANDLE* hLsa) {
     HANDLE hLsaLocal;
     LSA_OPERATIONAL_MODE mode = 0;
     NTSTATUS status = STATUS_SUCCESS;
@@ -139,7 +144,7 @@ NTSTATUS GetLsaHandle(HANDLE hToken, BOOL highIntegrity, HANDLE* hLsa) {
         STRING lsaString = (STRING){.Length = 8, .MaximumLength = 9, .Buffer = name};
         SECUR32$LsaRegisterLogonProcess(&lsaString, &hLsaLocal, &mode);
         if (hLsaLocal == NULL) {
-            if (IsSystem(hToken)) {
+            if (IsSystem()) {
                 status = SECUR32$LsaRegisterLogonProcess(&lsaString, &hLsaLocal, &mode);
                 if (!NT_SUCCESS(status)) {
                     status = ADVAPI32$LsaNtStatusToWinError(status);
