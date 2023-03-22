@@ -48,7 +48,7 @@ void execute_ptt(WCHAR** dispatch, char* ticket, LUID luid, BOOL currentLuid) {
     if (highIntegrity) {
         submitRequest->LogonId = luid;
     }
-    MSVCRT$memcpy((PBYTE)submitRequest + submitRequest->KerbCredOffset, decoded, decoded_len);
+    _memcpy((PBYTE)submitRequest + submitRequest->KerbCredOffset, decoded, decoded_len);
     MSVCRT$free(decoded);
     NTSTATUS protocolStatus;
     ULONG responseSize;

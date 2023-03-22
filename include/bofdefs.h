@@ -56,23 +56,15 @@ WINBASEAPI WINBOOL WINAPI KERNEL32$Process32FirstW(HANDLE hSnapshot, LPPROCESSEN
 WINBASEAPI WINBOOL WINAPI KERNEL32$Process32NextW(HANDLE hSnapshot, LPPROCESSENTRY32W lppe);
 WINBASEAPI WINBOOL WINAPI KERNEL32$CloseHandle(HANDLE hObject);
 WINBASEAPI HANDLE WINAPI KERNEL32$OpenProcess(DWORD dwDesiredAccess, WINBOOL bInheritHandle, DWORD dwProcessId);
-WINBASEAPI HMODULE WINAPI KERNEL32$LoadLibraryA(LPCSTR lpLibFileName);
-WINBASEAPI FARPROC WINAPI KERNEL32$GetProcAddress(HMODULE hModule, LPCSTR lpProcName);
 
 // msvcrt
-WINBASEAPI int __cdecl MSVCRT$strcmp(const char* _Str1, const char* _Str2);
-WINBASEAPI size_t __cdecl MSVCRT$wcslen(const wchar_t* _Str);
-WINBASEAPI size_t __cdecl MSVCRT$strlen(const char* _Str);
-WINBASEAPI size_t __cdecl MSVCRT$wcstombs(char* mbstr, const wchar_t* wcstr, size_t count);
-WINBASEAPI long __cdecl MSVCRT$strtol(const char* string, char** end_ptr, int base);
-WINBASEAPI int __cdecl MSVCRT$wcscmp(const wchar_t* string1, const wchar_t* string2);
 WINBASEAPI void* __cdecl MSVCRT$calloc(size_t num, size_t size);
 WINBASEAPI void __cdecl MSVCRT$free(void* memblock);
-WINBASEAPI void* __cdecl MSVCRT$memcpy(void* __restrict__ _Dst, const void* __restrict__ _Src, size_t _MaxCount);
+WINBASEAPI long __cdecl MSVCRT$strtol(const char* string, char** end_ptr, int base);
 WINBASEAPI void __cdecl MSVCRT$memset(void* dest, int c, size_t count);
+WINBASEAPI size_t __cdecl MSVCRT$wcstombs(char* mbstr, const wchar_t* wcstr, size_t count);
 WINBASEAPI size_t __cdecl MSVCRT$mbstowcs(wchar_t* __restrict__ _Dest, const char* __restrict__ _Source,
                                           size_t _MaxCount);
-WINBASEAPI int __cdecl MSVCRT$memcmp(const void* p1, const void* p2, size_t sizeSearch);
 
 // advapi32
 WINADVAPI WINBOOL WINAPI ADVAPI32$OpenProcessToken(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
@@ -187,18 +179,12 @@ __declspec(dllimport) NTSTATUS WINAPI CDLocateCSystem(LONG type, PKERB_ECRYPT* p
 #define KERNEL32$CloseHandle CloseHandle
 #define KERNEL32$OpenProcess OpenProcess
 
-#define MSVCRT$strcmp strcmp
-#define MSVCRT$wcslen wcslen
-#define MSVCRT$strlen strlen
 #define MSVCRT$wcstombs wcstombs
-#define MSVCRT$wcscmp wcscmp
 #define MSVCRT$strtol strtol
 #define MSVCRT$calloc calloc
 #define MSVCRT$free free
-#define MSVCRT$memcpy memcpy
 #define MSVCRT$memset memset
 #define MSVCRT$mbstowcs mbstowcs
-#define MSVCRT$memcmp memcmp
 
 #define ADVAPI32$OpenProcessToken OpenProcessToken
 #define ADVAPI32$GetTokenInformation GetTokenInformation

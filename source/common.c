@@ -185,7 +185,7 @@ int GetProcessIdByName(WCHAR* processName) {
 
     do {
         WCHAR* procName = pe32.szExeFile;
-        if (MSVCRT$wcscmp(procName, processName) == 0) {
+        if (_wcscmp(procName, processName) == 0) {
             pid = pe32.th32ProcessID;
             break;
         }
@@ -234,7 +234,7 @@ char* GetNarrowStringFromUnicode(UNICODE_STRING src) {
 }
 
 char* GetNarrowString(WCHAR* src) {
-    int len = MSVCRT$wcslen(src);
+    int len = _wcslen(src);
     char* dest = (char*)MSVCRT$calloc(len + 1, sizeof(char));
     if (dest == NULL) {
         return "(mem_alloc_error)";
@@ -245,11 +245,80 @@ char* GetNarrowString(WCHAR* src) {
 }
 
 WCHAR* GetWideString(char* src) {
-    int len = MSVCRT$strlen(src);
+    int len = _strlen(src);
     WCHAR* dest = (WCHAR*)MSVCRT$calloc(len + 1, sizeof(WCHAR));
     if (dest == NULL) {
         return NULL;
     }
     MSVCRT$mbstowcs(dest, src, len);
     return dest;
+}
+
+/*
+ * NTDLL string functions
+ *
+ * Copyright 2000 Alexandre Julliard
+ * Copyright 2000 Jon Griffiths
+ * Copyright 2003 Thomas Mertes
+ *
+ */
+
+unsigned int _strlen(const char *str) {
+    const char *s = str;
+    while (*s) s++;
+    return s - str;
+}
+
+int _strcmp(const char *str1, const char *str2) {
+    while (*str1 && *str1 == *str2) { str1++; str2++; }
+    if ((unsigned char)*str1 > (unsigned char)*str2) return 1;
+    if ((unsigned char)*str1 < (unsigned char)*str2) return -1;
+    return 0;
+}
+
+void* _memcpy(void *dst, const void *src, size_t n) {
+    volatile unsigned char *d = dst;  /* avoid gcc optimizations */
+    const unsigned char *s = src;
+
+    if ((size_t)dst - (size_t)src >= n)
+    {
+        while (n--) *d++ = *s++;
+    }
+    else
+    {
+        d += n - 1;
+        s += n - 1;
+        while (n--) *d-- = *s--;
+    }
+    return dst;
+}
+
+int _memcmp(const void *ptr1, const void *ptr2, size_t n) {
+    const unsigned char *p1, *p2;
+
+    for (p1 = ptr1, p2 = ptr2; n; n--, p1++, p2++)
+    {
+        if (*p1 < *p2) return -1;
+        if (*p1 > *p2) return 1;
+    }
+    return 0;
+}
+
+/*
+ * NTDLL wide-char functions
+ *
+ * Copyright 2000 Alexandre Julliard
+ * Copyright 2000 Jon Griffiths
+ * Copyright 2003 Thomas Mertes
+ */
+
+unsigned int _wcslen(LPCWSTR str) {
+    const WCHAR *s = str;
+    while (*s) s++;
+    return s - str;
+}
+
+int _wcscmp(LPCWSTR str1, LPCWSTR str2) {
+    while (*str1 && (*str1 == *str2)) { str1++; str2++; }
+    return *str1 - *str2;
 }

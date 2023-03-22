@@ -1,5 +1,6 @@
 #include "krb5.h"
 #include "bofdefs.h"
+#include "common.h"
 
 // Copyright (c) Microsoft Corporation
 
@@ -314,7 +315,7 @@ KERBERR NTAPI KerbPackData(ASN1module_t module, PVOID Data, ULONG PduValue, PULO
             KerbErr = KRB_ERR_GENERIC;
             *DataSize = 0;
         } else {
-            MSVCRT$memcpy(*EncodedData, pEnc->buf, pEnc->len);
+            _memcpy(*EncodedData, pEnc->buf, pEnc->len);
             *DataSize = pEnc->len;
         }
         MSASN1$ASN1_FreeEncoded(pEnc, pEnc->buf);
@@ -440,7 +441,7 @@ static int ASN1CALL ASN1Enc_KERB_TICKET(ASN1encoding_t enc, ASN1uint32_t tag, KE
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x80000000, &nLenOff0)) return 0;
     if (!MSASN1$ASN1BEREncS32(enc, 0x2, (val)->ticket_version)) return 0;
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff0)) return 0;
-    t = MSVCRT$strlen((val)->realm);
+    t = _strlen((val)->realm);
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x80000001, &nLenOff0)) return 0;
     if (!MSASN1$ASN1DEREncCharString(enc, 0x1b, t, (val)->realm)) return 0;
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff0)) return 0;
@@ -481,7 +482,7 @@ static int ASN1CALL ASN1Enc_KERB_PRINCIPAL_NAME_name_string(ASN1encoding_t enc, 
     if (!MSASN1$ASN1BEREncExplicitTag(enc, tag ? tag : 0x80000001, &nLenOff0)) return 0;
     if (!MSASN1$ASN1BEREncExplicitTag(enc, 0x10, &nLenOff)) return 0;
     for (f = *val; f; f = f->next) {
-        t = MSVCRT$strlen(f->value);
+        t = _strlen(f->value);
         if (!MSASN1$ASN1DEREncCharString(enc, 0x1b, t, f->value)) return 0;
     }
     if (!MSASN1$ASN1BEREncEndOfContents(enc, nLenOff)) return 0;
