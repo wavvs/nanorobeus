@@ -2,7 +2,8 @@
 /* data API */
 #include <windows.h>
 #ifdef BOF
-typedef struct {
+typedef struct
+{
     char *original; /* the original buffer [so we can free it] */
     char *buffer;   /* current pointer into our buffer */
     int length;     /* remaining length of data */
@@ -16,7 +17,8 @@ DECLSPEC_IMPORT int BeaconDataLength(datap *parser);
 DECLSPEC_IMPORT char *BeaconDataExtract(datap *parser, int *size);
 
 /* format API */
-typedef struct {
+typedef struct
+{
     char *original; /* the original buffer [so we can free it] */
     char *buffer;   /* current pointer into our buffer */
     int length;     /* remaining length of data */
@@ -56,8 +58,10 @@ DECLSPEC_IMPORT void BeaconCleanupProcess(PROCESS_INFORMATION *pInfo);
 /* Utility Functions */
 DECLSPEC_IMPORT BOOL toWideChar(char *src, wchar_t *dst, int max);
 
-#define PRINT(dispatch, ...) \
-    { BeaconPrintf(CALLBACK_OUTPUT, __VA_ARGS__); }
+#define PRINT(dispatch, ...)                        \
+    {                                               \
+        BeaconPrintf(CALLBACK_OUTPUT, __VA_ARGS__); \
+    }
 #elif BRC4
 DECLSPEC_IMPORT int BadgerDispatch(WCHAR **dispatch, const char *__format, ...);
 DECLSPEC_IMPORT int BadgerDispatchW(WCHAR **dispatch, const WCHAR *__format, ...);
@@ -71,11 +75,15 @@ DECLSPEC_IMPORT int BadgerStrcmp(const char *p1, const char *p2);
 DECLSPEC_IMPORT int BadgerWcscmp(const wchar_t *s1, const wchar_t *s2);
 DECLSPEC_IMPORT int BadgerAtoi(char *string);
 
-#define PRINT(dispatch, ...) \
-    { BadgerDispatch(dispatch, __VA_ARGS__); }
+#define PRINT(dispatch, ...)                   \
+    {                                          \
+        BadgerDispatch(dispatch, __VA_ARGS__); \
+    }
 #else
 
-#define PRINT(dispatch, ...) \
-    { fprintf(stdout, __VA_ARGS__); }
+#define PRINT(dispatch, ...)          \
+    {                                 \
+        fprintf(stdout, __VA_ARGS__); \
+    }
 
 #endif

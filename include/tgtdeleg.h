@@ -8,9 +8,9 @@
 #include "msasn1.h"
 #include "krb5.h"
 
-void execute_tgtdeleg(WCHAR** dispatch, char* spn);
+void execute_tgtdeleg(WCHAR **dispatch, char *spn);
 PBYTE SearchOID(LPCVOID data, SIZE_T size);
 PVOID MemorySearch(LPCVOID pattern, SIZE_T pSize, LPCVOID buf, SIZE_T bSize);
-NTSTATUS KerberosDecrypt(DWORD keyUsage, KERB_ENCRYPTION_KEY* key, ASN1octetstring_t* in, ASN1octetstring_t* out);
-NTSTATUS GetKeyFromCache(char* target, LONG encType, PUCHAR* key, PULONG keySize);
-LONG RequestApReq(char *spn, PUCHAR* apreq, PULONG apreqSize, BOOL checkDelegate);
+NTSTATUS KerberosDecrypt(DWORD keyUsage, KERB_ENCRYPTION_KEY *key, ASN1octetstring_t *in, ASN1octetstring_t *out);
+NTSTATUS GetKeyFromCache(char *target, LONG encType, PUCHAR *key, PULONG keySize);
+LONG RequestApReq(char *spn, PUCHAR *apreq, PULONG apreqSize, BOOL checkDelegate);

