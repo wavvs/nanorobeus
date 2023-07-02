@@ -73,7 +73,7 @@ WINBASEAPI HANDLE WINAPI KERNEL32$OpenProcess(DWORD dwDesiredAccess, WINBOOL bIn
 // msvcrt
 WINBASEAPI void *__cdecl MSVCRT$calloc(size_t num, size_t size);
 WINBASEAPI void __cdecl MSVCRT$free(void *memblock);
-WINBASEAPI long __cdecl MSVCRT$strtol(const char *string, char **end_ptr, int base);
+WINBASEAPI long __cdecl MSVCRT$strtoul(const char *string, char **end_ptr, int base);
 WINBASEAPI size_t __cdecl MSVCRT$mbstowcs(wchar_t *__restrict__ _Dest, const char *__restrict__ _Source,
                                           size_t _MaxCount);
 WINBASEAPI void *__cdecl MSVCRT$malloc(size_t size);

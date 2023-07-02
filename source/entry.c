@@ -120,7 +120,7 @@ void execute(WCHAR **dispatch, char *command, int argc, char *argv[])
         {
             luid = MSVCRT$calloc(1, sizeof(LUID));
             luid->HighPart = 0;
-            luid->LowPart = MSVCRT$strtol(argValue, NULL, 16);
+            luid->LowPart = (long)MSVCRT$strtoul(argValue, NULL, 16);
             if (luid->LowPart <= 0)
             {
                 MSVCRT$free(arg);
